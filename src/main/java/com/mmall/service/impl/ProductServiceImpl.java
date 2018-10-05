@@ -121,8 +121,8 @@ public class ProductServiceImpl implements IProductService{
         // 填充自己的sql查询逻辑
         //pageHelper收尾
         PageHelper.startPage(pageNum, pageSize);
-        List<Product> productList = productMapper.selectList();
 
+        List<Product> productList = productMapper.selectList();
         List<ProductListVo> productListVoList = Lists.newArrayList();
         for (Product productItem : productList) {
             ProductListVo productListVo = assembleProductListVo(productItem);
@@ -130,7 +130,6 @@ public class ProductServiceImpl implements IProductService{
         }
 
         PageInfo pageResult = new PageInfo(productList);
-
         pageResult.setList(productListVoList);
         return ServerResponse.createBySuccess(pageResult);
     }
@@ -147,5 +146,21 @@ public class ProductServiceImpl implements IProductService{
         productListVo.setSubtitle(product.getSubtitle());
         productListVo.setStatus(product.getStatus());
         return productListVo;
+    }
+
+    public ServerResponse<PageInfo> searchProduct(String productName, Integer productId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        if(StringUtils.isNotBlank(productName)) {
+            productName = new StringBuilder().append("%").append(productName).append("%").toString();
+        }
+        List<Product> productList = productMapper.selectByNameAndProductId(productName, productId);
+        List<ProductListVo> productListVoList = Lists.newArrayList();
+        for (Product productItem : productList) {
+            ProductListVo productListVo = assembleProductListVo(productItem);
+            productListVoList.add(productListVo);
+        }
+        PageInfo pageResult = new PageInfo(productList);
+        pageResult.setList(productListVoList);
+        return ServerResponse.createBySuccess(pageResult);
     }
 }
